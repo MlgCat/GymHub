@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app2="http://schemas.android.com/apk/res-auto"
+    xmlns:tools2="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://android.com"
+    xmlns:tools="http://android.com">
+
+    <data>
+        <!-- Collega il ViewModel che gestisce la logica dell'allenamento attuale -->
+        <variable
+            name="viewModel"
+            type="com.example.progetto_rosso_iacopo.ui.workout.ActiveWorkoutViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="24dp"
+        tools:context=".ui.dashboard.WorkoutPlayerFragment">
+
+        <!-- CARD PRINCIPALE DELL'ESERCIZIO ATTUALE -->
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardExercise"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            app:layout_topToTopOf="parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <!-- Indicatore numerico (es. Esercizio 2 di 5) -->
+                <TextView
+                    android:id="@+id/tvExerciseProgress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="?attr/colorSecondary"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    tools:text="Esercizio 1 di 6" />
+
+                <!-- Nome dell'esercizio -->
+                <TextView
+                    android:id="@+id/tvExerciseName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@{viewModel.exerciseName}"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    tools:text="Panca Piana" />
+
+                <!-- Descrizione dell'esercizio -->
+                <TextView
+                    android:id="@+id/tvExerciseDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@{viewModel.exerciseDescription}"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textSize="16sp"
+                    tools:text="Spingi il bilanciere verso l'alto mantenendo i piedi saldi a terra." />
+
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <!-- Dati di Serie e Ripetizioni -->
+                <LinearLayout
+                    android:id="@+id/repsSetsLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="SERIE RIMASTE"
+                            android:textAlignment="center"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/tvSets"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@{viewModel.exerciseSets.toString()}"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            tools:text="4" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="RIPETIZIONI"
+                            android:textAlignment="center"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/tvReps"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@{viewModel.exerciseReps.toString()}"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            tools:text="10" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layoutButtons"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnPrevious"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="56dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_weight="1"
+                        android:enabled="@{viewModel.isPreviousButtonEnabled}"
+                        android:onClick="@{() -> viewModel.previousExercise()}"
+                        android:text="Indietro"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/btnNext"
+                        app:layout_constraintStart_toLeftOf="parent" />
+
+                    <Button
+                        android:id="@+id/btnNext"
+                        style="@style/Widget.Material3.Button.IconButton.Filled"
+                        android:layout_width="0dp"
+                        android:layout_height="56dp"
+                        android:layout_weight="1"
+                        android:text="@{viewModel.nextButtonText}"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/btnPrevious"
+                        app:layout_endToEnd="parent"
+                        tools:text="Avanti" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- SEZIONE TIMER PER IL RECUPERO -->
+
+        <LinearLayout
+            android:id="@+id/layoutTimer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            app2:layout_constraintEnd_toEndOf="parent"
+            app2:layout_constraintStart_toStartOf="parent"
+            app2:layout_constraintTop_toBottomOf="@id/cardExercise"
+            app:layout_constraintBottom_toTopOf="@+id/btnNext"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cardExercise">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TEMPO DI RECUPERO"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <!-- Display del countdown (es. 01:30) -->
+            <TextView
+                android:id="@+id/tvTimerDisplay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{viewModel.timerText}"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="34sp"
+                android:textStyle="bold"
+                tools:text="01:30" />
+
+            <!-- Pulsante opzionale per saltare o avviare il timer -->
+
+            <Button
+                android:id="@+id/btnStartTimer"
+                style="@style/Widget.Material3.Button.IconButton.Filled"
+                android:layout_width="wrap_content"
+                android:layout_height="46dp"
+                android:layout_weight="1"
+                android:text="avvia recupero"
+                android:textSize="14sp"
+                app2:layout_constraintBottom_toBottomOf="parent"
+                app2:layout_constraintStart_toEndOf="@+id/btnPrevious"
+                tools:text="Avanti" />
+
+            <LinearLayout
+                android:id="@+id/layoutTimerButtons"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:orientation="horizontal"
+                android:textAlignment="center">
+
+                <Button
+                    android:id="@+id/btnPreviousSet"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="serie precedente" />
+
+                <Button
+                    android:id="@+id/btnNextSet"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+
+                    android:text="serie successiva" />
+
+                <Button
+                    android:id="@+id/btnResetTimer"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="resetta recupero" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- PULSANTI DI NAVIGAZIONE IN BASSO -->
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

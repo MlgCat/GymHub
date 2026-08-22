@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://android.com"
+    xmlns:app2="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://android.com"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/routineListFragment"
+    app2:startDestination="@id/dashboardFragment">
+
+    <!-- Schermata di Login -->
+
+    <fragment
+        android:id="@+id/dashboardFragment"
+        android:name="com.example.progetto_rosso_iacopo.ui.dashboard.DashboardFragment"
+        android:label="Attività Giornaliera"
+        tools:layout="@layout/fragment_dashboard" >
+        <action
+            android:id="@+id/action_dashboardFragment_to_addWorkoutFragment"
+            app2:destination="@id/addWorkoutFragment" />
+        <action
+            android:id="@+id/action_dashboardFragment_to_routineListFragment"
+            app2:destination="@id/routineListFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/routineListFragment"
+        android:name="com.example.progetto_rosso_iacopo.ui.workout.RoutineListFragment"
+        android:label="Attività Giornaliera"
+        tools:layout="@layout/fragment_routine_list" >
+        <action
+            android:id="@+id/action_routineListFragment_to_routineDetailFragment"
+            app2:destination="@id/routineDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/routineDetailFragment"
+        android:name="com.example.progetto_rosso_iacopo.ui.workout.RoutineDetailFragment"
+        android:label="Attività Giornaliera"
+        tools:layout="@layout/fragment_routine_detail" >
+        <action
+            android:id="@+id/action_routineDetailFragment_to_workoutFragment"
+            app2:destination="@id/workoutFragment" />
+    </fragment>
+
+    <!-- Schermata Elenco Allenamenti -->
+    <fragment
+        android:id="@+id/workoutFragment"
+        android:name="com.example.progetto_rosso_iacopo.ui.workout.ActiveWorkoutFragment"
+        android:label="I Miei Allenamenti"
+        tools:layout="@layout/fragment_workout"/>
+
+    <!-- Schermata Profilo Utente -->
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.progetto_rosso_iacopo.ui.profile.ProfileFragment"
+        android:label="Profilo Utente"
+        tools:layout="@layout/fragment_profile"/>
+
+    <fragment
+        android:id="@+id/addWorkoutFragment"
+        android:name="com.example.progetto_rosso_iacopo.ui.workout.CreateRoutineFragment"
+        android:label="Crea una nuova scheda di allenamento"
+        tools:layout="@layout/fragment_add_workout" />
+
+</navigation>

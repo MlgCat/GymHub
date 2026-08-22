@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Progetto_Rosso_Iacopo</string>
+    <string name="workout_creation_title">Crea la tua scheda di allenamento</string>
+    <string name="title_hint">Aggiungi il titolo del tuo workout</string>
+    <string name="welcome_title">Benvenuto in GymHub</string>
+    <string name="routines_list_title">Le tue schede di allenamento</string>
+</resources>

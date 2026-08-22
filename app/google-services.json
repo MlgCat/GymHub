@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "228290389603",
+    "project_id": "progetto-rosso-iacopo",
+    "storage_bucket": "progetto-rosso-iacopo.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:228290389603:android:ba7da21eb96e4f7d083a56",
+        "android_client_info": {
+          "package_name": "com.example.progetto_rosso_iacopo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "228290389603-k7re0j168t72q4065tpg2cv0a0qj7l93.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.progetto_rosso_iacopo",
+            "certificate_hash": "99ec91c486467b47dd9a28a045d02ca9a42009d4"
+          }
+        },
+        {
+          "client_id": "228290389603-218tj7j06od0to7ivac4uqpa9f89v22t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWDAbSAgFpN97I2cniR3H18hymtLStseQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "228290389603-218tj7j06od0to7ivac4uqpa9f89v22t.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
