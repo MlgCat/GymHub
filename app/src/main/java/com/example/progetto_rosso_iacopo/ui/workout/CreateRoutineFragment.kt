@@ -18,7 +18,7 @@ class CreateRoutineFragment : Fragment() {
     private val viewModel: CreateRoutineViewModel by viewModels()
     private var _binding: FragmentAddWorkoutBinding? = null
     private val binding get() = _binding!!
-    private lateinit var exerciseAdapter: ExerciseAdapter
+    private lateinit var exerciseAdapter: ModifiableExerciseAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,13 +37,30 @@ class CreateRoutineFragment : Fragment() {
             binding.invalidateAll()
             binding.etExerciseName.requestFocus()
         }
-        exerciseAdapter = ExerciseAdapter()
+        exerciseAdapter = ModifiableExerciseAdapter(
+            {exercise, exerciseNum->
+                viewModel.onEditExercise(exercisePos= exerciseNum, exercise= exercise)
+                binding.invalidateAll()
+                binding.etExerciseName.setText(exercise.name)
+            },
+            {exerciseNum->
+                viewModel.deleteExercise(exerciseNum)
+            }
+        )
         binding.rvExercises.adapter = exerciseAdapter
 
         viewModel.exerciseList.observe(viewLifecycleOwner) { list ->
             exerciseAdapter.submitList(list)
         }
 
+        viewModel.editedExerciseNum.observe(viewLifecycleOwner) {
+            pos-> exerciseAdapter.setHighlightedPosition(pos)
+            if(pos!=null){
+                binding.btnExercise.setText("Modifica esercizio")
+            }else{
+                binding.btnExercise.setText("Aggiungi esercizio")
+            }
+        }
         viewModel.saveStatus.observe(viewLifecycleOwner) { result ->
             when (result) {
                 is SaveResult.Success -> {

@@ -3,10 +3,8 @@ package com.example.progetto_rosso_iacopo.ui.workout
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.appcompat.view.menu.MenuView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.progetto_rosso_iacopo.data.model.WorkoutRoutine
 import com.example.progetto_rosso_iacopo.R
@@ -32,9 +30,9 @@ class PersonalRoutineAdapter(val onItemClick: (WorkoutRoutine)-> Unit, val onDel
     override fun getItemCount(): Int = routineList.size
 
     class PersonalWorkoutRoutineViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val text1: TextView = itemView.findViewById(R.id.textTitlePersonal)
-        private val text2: TextView = itemView.findViewById(R.id.textSubtitlePersonal)
-        private val label: LinearLayout = itemView.findViewById(R.id.routineLabel)
+        private val text1: TextView = itemView.findViewById(R.id.personalRoutineTitle)
+        private val text2: TextView = itemView.findViewById(R.id.creatorName)
+        private val label: LinearLayout = itemView.findViewById(R.id.personalRoutineLabel)
         private val deleteButton: View = itemView.findViewById(R.id.btnDelete)
         private val editButton: View = itemView.findViewById(R.id.btnEdit)
         fun bind(routine: WorkoutRoutine, onItemClick: (WorkoutRoutine) -> Unit, onEditClick: (WorkoutRoutine) -> Unit, onDeleteClick: (WorkoutRoutine) -> Unit) {

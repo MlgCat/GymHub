@@ -1,5 +1,6 @@
 package com.example.progetto_rosso_iacopo.ui.workout
 import android.os.CountDownTimer
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -31,7 +32,7 @@ class CreateRoutineViewModel : ViewModel()  {
     private val _exerciseList: MutableLiveData<List<Exercise>> = MutableLiveData()
     val exerciseList: LiveData<List<Exercise>> = _exerciseList
 
-    private val _currentName: MutableLiveData<String> = MutableLiveData()
+    val _currentName: MutableLiveData<String> = MutableLiveData()
     var currentNameBinding by _currentName.asBindingProperty()
     val currentName : LiveData<String> = _currentName
 
@@ -56,9 +57,15 @@ class CreateRoutineViewModel : ViewModel()  {
     private val _isRoutinePublic: MutableLiveData<Boolean> = MutableLiveData()
     val isRoutinePublic: LiveData<Boolean> = _isRoutinePublic
 
+    val editedExerciseNum: MutableLiveData<Int?> = MutableLiveData(null)
+
     fun addExerciseToList() {
         val name = _currentName.value?.trim()
         if (name.isNullOrBlank()) {
+            return
+        }
+        if (editedExerciseNum.value != null){
+            editExercise(editedExerciseNum.value?:0)
             return
         }
         val newExercise: Exercise = Exercise(
@@ -100,8 +107,6 @@ class CreateRoutineViewModel : ViewModel()  {
         val uid = currentUser?.uid ?: "unknown_user"
         val userName = currentUser?.displayName ?: "Allenatore Anonimo"
         val list = _exerciseList.value ?: emptyList()
-
-        // 1. Connettiti a Firestore e chiedi una casella (documento) vuota
         val db = FirebaseFirestore.getInstance()
         val newDocumentRef = db.collection("workoutroutines").document()
         val id = newDocumentRef.id
@@ -124,7 +129,50 @@ class CreateRoutineViewModel : ViewModel()  {
                 _saveStatus.value = SaveResult.FirebaseError(e.localizedMessage?:"Errore di salvataggio")
             }
     }
+
+    fun deleteExercise(exercisePos: Int) {
+        val list: List<Exercise> = exerciseList.value?:emptyList()
+        if (exercisePos in list.indices) {
+            val newList = list- list[exercisePos]
+            _exerciseList.value = newList
+            if(exercisePos == (editedExerciseNum.value?:-1)){
+                editedExerciseNum.value = null
+            }
+        }
+    }
+
+    fun onEditExercise(exercise: Exercise, exercisePos:Int) {
+        currentNameBinding = exercise.name
+        currentDescriptionBinding = exercise.description
+        currentRepsBinding = exercise.reps.toString()
+        currentSetsBinding = exercise.sets.toString()
+        currentRestTimeSecondsBinding = exercise.restTimeSeconds.toString()
+        editedExerciseNum.value = exercisePos
+    }
+
+    fun editExercise(exercisePos: Int){
+        val name = _currentName.value?.trim()
+        if (name.isNullOrBlank()) {
+            return
+        }
+        val newExercise: Exercise = Exercise(
+            name = name,
+            reps = _currentReps.value,
+            description = _currentDescription.value,
+            sets = _currentSets.value,
+            restTimeSeconds = _currentRestTimeSeconds.value
+        )
+        val currentList = _exerciseList.value?.toMutableList() ?: return
+        if (exercisePos in currentList.indices) {
+            currentList[exercisePos] = newExercise
+            _exerciseList.value = currentList
+        }
+        editedExerciseNum.value = null
+        resetFields()
+    }
 }
+
+
 
 sealed class SaveResult {
     object Success : SaveResult()
