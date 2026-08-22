@@ -20,7 +20,6 @@ class UniversalBindingDelegate<T>(
 ) : ReadWriteProperty<Any?, String> {
 
     override fun getValue(thisRef: Any?, property: KProperty<*>): String {
-        // Rimosso il codice duplicato liveData.value = liveData.value
         return liveData.value?.toString() ?: defaultString
     }
 
@@ -28,10 +27,11 @@ class UniversalBindingDelegate<T>(
         val convertedValue = try {
             typeCheck(value)
         } catch (e: Exception) {
-            return
+            return // Ignora se la conversione fallisce
         }
 
-        if (value.isEmpty() || liveData.value != convertedValue) {
+        // AGGIORNATO: Rimosso value.isEmpty(). Confronta solo i valori reali.
+        if (liveData.value != convertedValue) {
             liveData.value = convertedValue
         }
     }
@@ -40,17 +40,22 @@ class UniversalBindingDelegate<T>(
 inline fun <reified T> MutableLiveData<T>.asBindingProperty(defaultString: String? = null): UniversalBindingDelegate<T> {
     return when (T::class) {
         String::class -> {
-            UniversalBindingDelegate(this, typeCheck = { it as T }, defaultString = defaultString?:"")
+            UniversalBindingDelegate(
+                liveData = this,
+                // CORREZIONE: Forza il compilatore a passare la stringa pulita senza cast generici instabili
+                typeCheck = { it as T },
+                defaultString = defaultString ?: ""
+            )
         }
         Int::class -> {
             val default = defaultString ?: ""
             val defaultInt = default.toIntOrNull() ?: 0
             UniversalBindingDelegate(
                 liveData = this,
-                typeCheck = {
-                                text -> val parsed =  text.toIntOrNull() ?: defaultInt
-                                parsed as T
-                            },
+                typeCheck = { text ->
+                    val parsed = text.toIntOrNull() ?: defaultInt
+                    parsed as T
+                },
                 defaultString = default
             )
         }

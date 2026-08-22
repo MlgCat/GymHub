@@ -37,7 +37,7 @@ class RoutineListFragment: Fragment() {
         val routineAdapter = PersonalRoutineAdapter(
             onItemClick = {selectedRoutine-> onRoutineClicked(selectedRoutine)},
             onDeleteClick = {selectedRoutine-> onDeleteClicked(selectedRoutine)},
-            onEditClick={}
+            onEditClick={selectedRoutine-> onEditClicked(selectedRoutine)}
         )
         binding.rvRoutines.adapter = routineAdapter
         viewModel.routines.observe(viewLifecycleOwner){
@@ -62,6 +62,13 @@ class RoutineListFragment: Fragment() {
             putString("routineId", routine.id)
         }
         findNavController().navigate(R.id.action_routineListFragment_to_routineDetailFragment, bundle)
+    }
+
+    fun onEditClicked(routine: WorkoutRoutine):Unit{
+        val bundle = Bundle().apply {
+            putString("routineId", routine.id)
+        }
+        findNavController().navigate(R.id.action_routineListFragment_to_editWorkoutFragment, bundle)
     }
 
     fun onDeleteClicked(routine: WorkoutRoutine):Unit{

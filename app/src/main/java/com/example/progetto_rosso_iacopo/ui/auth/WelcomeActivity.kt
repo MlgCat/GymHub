@@ -66,6 +66,7 @@ class WelcomeActivity : AppCompatActivity() {
         if (result.resultCode == RESULT_OK) {
             val user = FirebaseAuth.getInstance().currentUser
             val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
         } else {
             if (response == null) {
                 android.util.Log.d(
