@@ -22,9 +22,8 @@ class EditRoutineViewModel: ViewModel() {
     val creatorId: LiveData<String> = _creatorId
     private val _creatorName: MutableLiveData<String> = MutableLiveData()
     val creatorName: LiveData<String> = _creatorName
-    private val _title: MutableLiveData<String> = MutableLiveData("scheda personalizzata")
-    var titleBinding by _title.asBindingProperty("scheda personalizzata")
-    val title: LiveData<String> = _title
+
+    val title: MutableLiveData<String> = MutableLiveData()
     private val _description: MutableLiveData<String> = MutableLiveData()
     var descriptionBinding by _description.asBindingProperty()
     val description: LiveData<String> = _description
@@ -44,9 +43,9 @@ class EditRoutineViewModel: ViewModel() {
     var currentSetsBinding by _currentSets.asBindingProperty()
     val currentSets: LiveData<Int> = _currentSets
 
-    private val _currentRestTimeSeconds: MutableLiveData<Int> = MutableLiveData()
+    private val _currentRestTimeSeconds: MutableLiveData<Long> = MutableLiveData()
     var currentRestTimeSecondsBinding by _currentRestTimeSeconds.asBindingProperty()
-    val currentRestTimeSeconds: LiveData<Int> = _currentRestTimeSeconds
+    val currentRestTimeSeconds: LiveData<Long> = _currentRestTimeSeconds
 
     private val _currentDescription: MutableLiveData<String> = MutableLiveData()
     var currentDescriptionBinding by _currentName.asBindingProperty()
@@ -54,11 +53,10 @@ class EditRoutineViewModel: ViewModel() {
     private val _saveStatus = MutableLiveData<SaveResult>()
     val saveStatus: LiveData<SaveResult> = _saveStatus
 
-    private val _isRoutinePublic: MutableLiveData<Boolean> = MutableLiveData()
-    val isRoutinePublic: LiveData<Boolean> = _isRoutinePublic
+    val isRoutinePublic: MutableLiveData<Boolean> = MutableLiveData()
 
     val editedExerciseNum: MutableLiveData<Int?> = MutableLiveData(null)
-    private val editedRoutineId: MutableLiveData<String> = MutableLiveData("")
+    private val editedRoutineId: MutableLiveData<String> = MutableLiveData()
     private val editedDocument: MutableLiveData<DocumentReference> = MutableLiveData()
 
     val _result: MutableLiveData<FetchResult> = MutableLiveData()
@@ -75,10 +73,10 @@ class EditRoutineViewModel: ViewModel() {
         }
         val newExercise: Exercise = Exercise(
             name = name,
-            reps = _currentReps.value,
-            description = _currentDescription.value,
-            sets = _currentSets.value,
-            restTimeSeconds = _currentRestTimeSeconds.value
+            reps = _currentReps.value?:0,
+            description = _currentDescription.value?:"",
+            sets = _currentSets.value?:0,
+            restTimeSeconds = _currentRestTimeSeconds.value ?: 0L
         )
         val currentList: List<Exercise> = _exerciseList.value ?: emptyList()
         val newList: List<Exercise> = currentList + newExercise
@@ -109,13 +107,13 @@ class EditRoutineViewModel: ViewModel() {
         _id.value = routine.id
         _creatorId.value = routine.creatorId
         _creatorName.value = routine.creatorName
-        _title.value = routine.title
+        title.value = routine.title
         _description.value = routine.description
         _exerciseList.value = routine.exerciseList
     }
 
     fun saveRoutineToFirebase(){
-        val name = _title.value?.trim()
+        val name = title.value?.trim()
         val exerciseList: List<Exercise>? = _exerciseList.value
         if (exerciseList.isNullOrEmpty()){
             _saveStatus.value = SaveResult.ValidationError("Inserisci almeno un esercizio")

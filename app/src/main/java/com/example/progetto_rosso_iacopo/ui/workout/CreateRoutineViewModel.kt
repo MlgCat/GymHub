@@ -22,9 +22,7 @@ class CreateRoutineViewModel : ViewModel()  {
     val creatorId: LiveData<String> = _creatorId
     private val _creatorName: MutableLiveData<String> = MutableLiveData()
     val creatorName: LiveData<String> = _creatorName
-    private val _title: MutableLiveData<String> = MutableLiveData("scheda personalizzata")
-    var titleBinding by _title.asBindingProperty("scheda personalizzata")
-    val title : LiveData<String> = _title
+    val _title: MutableLiveData<String> = MutableLiveData()
     private val _description: MutableLiveData<String> = MutableLiveData()
     var descriptionBinding by _description.asBindingProperty()
     val description : LiveData<String> = _description
@@ -44,9 +42,9 @@ class CreateRoutineViewModel : ViewModel()  {
     var currentSetsBinding by _currentSets.asBindingProperty()
     val currentSets : LiveData<Int> = _currentSets
 
-    private val _currentRestTimeSeconds: MutableLiveData<Int> = MutableLiveData()
+    private val _currentRestTimeSeconds: MutableLiveData<Long> = MutableLiveData()
     var currentRestTimeSecondsBinding by _currentRestTimeSeconds.asBindingProperty()
-    val currentRestTimeSeconds : LiveData<Int> = _currentRestTimeSeconds
+    val currentRestTimeSeconds : LiveData<Long> = _currentRestTimeSeconds
 
     private val _currentDescription: MutableLiveData<String> = MutableLiveData()
     var currentDescriptionBinding by _currentName.asBindingProperty()
@@ -54,8 +52,7 @@ class CreateRoutineViewModel : ViewModel()  {
     private val _saveStatus = MutableLiveData<SaveResult>()
     val saveStatus: LiveData<SaveResult> = _saveStatus
 
-    private val _isRoutinePublic: MutableLiveData<Boolean> = MutableLiveData()
-    val isRoutinePublic: LiveData<Boolean> = _isRoutinePublic
+    val isRoutinePublic: MutableLiveData<Boolean> = MutableLiveData()
 
     val editedExerciseNum: MutableLiveData<Int?> = MutableLiveData(null)
 

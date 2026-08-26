@@ -74,6 +74,7 @@ class EditRoutineFragment: Fragment() {
         }
         val routineId = arguments?.getString("routineId")?:""
         viewModel.loadRoutine(routineId)
+        binding.invalidateAll()
     }
     override fun onDestroyView() {
         super.onDestroyView()

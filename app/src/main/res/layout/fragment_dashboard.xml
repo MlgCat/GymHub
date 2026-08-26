@@ -90,11 +90,11 @@
                 android:text="Schede di allenamento pubbliche" />
 
             <Button
-                android:id="@+id/button4"
+                android:id="@+id/btnResume"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:text="I tuoi allenamenti recenti" />
+                android:text="Contunua il tuo ultimo allenamento" />
 
         </LinearLayout>
 

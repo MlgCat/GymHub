@@ -20,7 +20,7 @@ class RoutineListFragment: Fragment() {
     val viewModel: RoutineListViewModel by viewModels()
     var _binding: FragmentRoutineListBinding? = null
     val binding: FragmentRoutineListBinding get() = _binding!!
-    override fun onCreateView(
+        override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -51,6 +51,9 @@ class RoutineListFragment: Fragment() {
                 }
                 is FetchResult.FirebaseError -> {
                     Toast.makeText(context, "Errore DB: ${result.message}", Toast.LENGTH_SHORT).show()
+                }
+                is FetchResult.GenericError -> {
+                    Toast.makeText(context, "Errore: ${result.message}", Toast.LENGTH_SHORT).show()
                 }
             }
         }

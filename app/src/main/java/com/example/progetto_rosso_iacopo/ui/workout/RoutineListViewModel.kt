@@ -48,9 +48,5 @@ class RoutineListViewModel: ViewModel() {
             .addOnSuccessListener { _result.value = FetchResult.Success }
             .addOnFailureListener { e-> _result.value = FetchResult.FirebaseError(e.localizedMessage) }
     }
-
-    fun editRoutine(routine: WorkoutRoutine){
-        
-    }
 }
 

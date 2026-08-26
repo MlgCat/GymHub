@@ -92,4 +92,5 @@ fun DocumentReference.fetch(onSuccess: (DocumentSnapshot)->Unit,  result: Mutabl
 sealed class FetchResult {
     data object Success : FetchResult()
     data class FirebaseError(val message: String) : FetchResult()
+    data class GenericError(val message: String) : FetchResult()
 }

@@ -20,6 +20,12 @@
         <action
             android:id="@+id/action_dashboardFragment_to_routineListFragment"
             app2:destination="@id/routineListFragment" />
+        <action
+            android:id="@+id/action_dashboardFragment_to_publicRoutineListFragment"
+            app2:destination="@id/publicRoutineListFragment" />
+        <action
+            android:id="@+id/action_dashboardFragment_to_workoutFragment"
+            app2:destination="@id/workoutFragment" />
     </fragment>
 
     <fragment
@@ -58,13 +64,18 @@
         android:label="Modifica la scheda"
         tools:layout="@layout/fragment_edit_workout"/>
 
+    <fragment
+        android:id="@+id/publicRoutineListFragment"
+        android:name="com.example.progetto_rosso_iacopo.ui.workout.PublicRoutineListFragment"
+        android:label="Modifica la scheda"
+        tools:layout="@layout/fragment_routine_list">
+        <action
+            android:id="@+id/action_publicRoutineListFragment_to_routineDetailFragment"
+            app2:destination="@id/routineDetailFragment" />
+    </fragment>
+
 
     <!-- Schermata Profilo Utente -->
-    <fragment
-        android:id="@+id/profileFragment"
-        android:name="com.example.progetto_rosso_iacopo.ui.profile.ProfileFragment"
-        android:label="Profilo Utente"
-        tools:layout="@layout/fragment_profile"/>
 
     <fragment
         android:id="@+id/addWorkoutFragment"
