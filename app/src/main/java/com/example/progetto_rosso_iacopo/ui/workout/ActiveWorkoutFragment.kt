@@ -1,6 +1,9 @@
 package com.example.progetto_rosso_iacopo.ui.workout
 
+import android.app.Application
+import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +15,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.progetto_rosso_iacopo.data.model.WorkoutRoutine
 import com.example.progetto_rosso_iacopo.databinding.FragmentWorkoutBinding
 import com.example.progetto_rosso_iacopo.utils.FetchResult
+import androidx.compose.runtime.Composable
 
 class ActiveWorkoutFragment : Fragment(){
     var _binding: FragmentWorkoutBinding? = null
@@ -33,7 +37,14 @@ class ActiveWorkoutFragment : Fragment(){
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         observeResults()
-        viewModel.fetchRoutine(arguments?.getString("routineId")?:"")
+        val args = arguments?.getString("routineId")
+        if(args != null){
+            viewModel.fetchRoutine(args)
+            {viewModel.saveWorkoutState()}
+        } else{
+            viewModel.reloadRoutine()
+        }
+        viewModel.exerciseSets.observe(viewLifecycleOwner) {numSets-> Log.d("Setsobserver","exerciseSets = ${viewModel.exerciseSets.value}")}
         binding.btnNext.setOnClickListener { viewModel.nextExercise() }
         binding.btnPrevious.setOnClickListener { viewModel.previousExercise() }
         binding.btnStartTimer.setOnClickListener { viewModel.toggleTimer() }
@@ -62,6 +73,9 @@ class ActiveWorkoutFragment : Fragment(){
                 }
                 is FetchResult.FirebaseError -> {
                     Toast.makeText(context, "Errore DB: ${result.message}", Toast.LENGTH_SHORT).show()
+                }
+                is FetchResult.GenericError -> {
+                    Toast.makeText(context, "Errore: ${result.message}", Toast.LENGTH_SHORT).show()
                 }
             }
         }

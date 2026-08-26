@@ -1,5 +1,8 @@
 package com.example.progetto_rosso_iacopo.ui.workout
 
+import android.app.Application
+import android.content.SharedPreferences
+import android.content.Context
 import android.os.CountDownTimer
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -11,20 +14,22 @@ import com.example.progetto_rosso_iacopo.utils.FetchResult
 import com.example.progetto_rosso_iacopo.utils.fetch
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import androidx.lifecycle.AndroidViewModel
 import kotlin.time.Duration.Companion.seconds
+//ho bisogno dell'application context per salvare lo stato attuale dell'allenamento
 
-class ActiveWorkoutViewModel : ViewModel() {
+class ActiveWorkoutViewModel(application: Application) : AndroidViewModel(application) {
     private var routine: WorkoutRoutine? = WorkoutRoutine()
 
     private val _title: MutableLiveData<String> = MutableLiveData("")
     val title: LiveData<String> = _title
-    private val _timeLeftSeconds = MutableLiveData<Int>(0)
-    val timeLeftSeconds: LiveData<Int> = _timeLeftSeconds
+    private val _timeLeftSeconds = MutableLiveData<Long>(0L)
+    val timeLeftSeconds: LiveData<Long> = _timeLeftSeconds
 
-    private val _timerText: MutableLiveData<String> = MutableLiveData(0.asTimerText())
+    private val _timerText: MutableLiveData<String> = MutableLiveData(0L.asTimerText())
     val timerText: LiveData<String> = _timerText
 
-
+    private val _timerEnd: MutableLiveData<Long> = MutableLiveData()
 
     private val _isTimerRunning = MutableLiveData<Boolean>(false)
     val isTimerRunning: LiveData<Boolean> = _isTimerRunning
@@ -63,23 +68,75 @@ class ActiveWorkoutViewModel : ViewModel() {
     private val _isPreviousButtonEnabled: MutableLiveData<Boolean> = MutableLiveData(false)
     val isPreviousButtonEnabled: LiveData<Boolean> = _isPreviousButtonEnabled
 
-    fun fetchRoutine(id: String) {
+    //uso lazy per evitare di chiamare getApplication prima che sia pronto
+    private val prefs by lazy {
+        application.getSharedPreferences(
+            "active-workout-state",
+            Context.MODE_PRIVATE
+        )
+    }
+
+    fun saveWorkoutState(){
+        prefs.edit()
+            .putInt("exerciseNum", exerciseNum.value?:0)
+            .putInt("currentSet", exerciseSets.value?:0)
+            .putString("routineId", (routine?.id)?:"")
+            .putBoolean("isTimerRunning", (isTimerRunning.value)?:false)
+            .putLong("timerEnd", _timerEnd.value?:0).apply()
+    }
+
+    fun reloadRoutine(){
+        val id = prefs.getString("routineId", "")
+        Log.d("Info", "reloading $id")
+        if(!id.isNullOrEmpty()) {
+            _exerciseNum.value = prefs.getInt("exerciseNum", 0)
+            _isPreviousButtonEnabled.value = (exerciseNum.value?:-1) > 0
+            val isRunning = prefs.getBoolean("isTimerRunning", false)
+            val savedTimerEnd = prefs.getLong("timerEnd", -1)
+            //quando ho aggiornato l'esercizio sovrascrivo exerciseSets e timerEnd
+            fetchRoutine(id, exerciseNum.value?:0) {
+                _exerciseSets.value = prefs.getInt("currentSet", 0)
+                _timerEnd.value = savedTimerEnd
+                _isTimerRunning.value = isRunning
+                if(isRunning){
+                    restoreTimerFromSavedEnd(savedTimerEnd)
+                }
+            }
+        }
+    }
+
+    fun clearWorkoutState(){
+        prefs.edit()
+            .putInt("exerciseNum", 0)
+            .putInt("currentSet", 0)
+            .putString("routineId", "")
+            .putLong("timerEnd", 0L)
+            .putBoolean("isTimerRunning", false)
+            .apply()
+    }
+
+    fun fetchRoutine(id: String, exerciseNum: Int = 0, onComplete: (()->Unit)? = null) {
+        if(id == ""){
+            _result.value = FetchResult.GenericError("tentativo di cercare scheda con id vuoto")
+            _isFinished.value = true
+            return
+        }
         Log.d("FIRESTORE_DEBUG_ACTIVEWORKOUT", "Sto cercando la routine con ID: '$id' cercata da UID:'$userId'")
         val query = db.collection("workoutroutines").document(id)
         query.fetch({ queryWorkout ->
             routine = queryWorkout.toObject(WorkoutRoutine::class.java)
-            update(routine)
+            update(routine, exerciseNum)
+            onComplete?.invoke()
         }, _result)
     }
-
-    fun update(workoutRoutine: WorkoutRoutine?){
+    fun update(workoutRoutine: WorkoutRoutine?, exerciseNum: Int = 0){
         _title.value = routine?.title
         //_creatorName.value = routine.title
         //_description.value = routine.description
         _exerciseList.value = routine?.exerciseList
-        _exerciseNum.value = 0
-        _isPreviousButtonEnabled.value = false
-        _currentExercise.value = _exerciseList.value?.get(0)?: Exercise()
+        _exerciseNum.value = exerciseNum
+        _isPreviousButtonEnabled.value = exerciseNum>0
+        _currentExercise.value = _exerciseList.value?.getOrNull(exerciseNum)?: Exercise()
         updateExercise()
     }
 
@@ -99,6 +156,7 @@ class ActiveWorkoutViewModel : ViewModel() {
             return
         }
         resetTimer()
+        saveWorkoutState()
     }
 
     fun previousSet(){
@@ -111,12 +169,14 @@ class ActiveWorkoutViewModel : ViewModel() {
             _exerciseSets.value = exerciseSets.value!! + 1
         }
         resetTimer()
+        saveWorkoutState()
     }
 
     fun resetTimer(){
         _timeLeftSeconds.value = _currentExercise.value?.restTimeSeconds
         _timerText.value = timeLeftSeconds.value?.asTimerText()
         _isTimerRunning.value = false
+        prefs.edit().putBoolean("isTimerRunning", false).apply()
         countDownTimer?.cancel()
     }
 
@@ -127,7 +187,7 @@ class ActiveWorkoutViewModel : ViewModel() {
             current = current + 1
             _exerciseNum.value = current
             _isPreviousButtonEnabled.value = (exerciseNum.value?:0) > 0
-            _currentExercise.value = routine?.exerciseList[current]?: Exercise()
+            _currentExercise.value = routine?.exerciseList?.getOrNull(current)?: Exercise()
             updateExercise()
             if (last==current){
                 nextButtonText.value = "Fine"
@@ -135,8 +195,9 @@ class ActiveWorkoutViewModel : ViewModel() {
         }
         else{
             _isFinished.value = true
-            return
+            clearWorkoutState()
         }
+        saveWorkoutState()
     }
 
     fun previousExercise() {
@@ -145,7 +206,7 @@ class ActiveWorkoutViewModel : ViewModel() {
             val prevIndex = currentIndex - 1
             _exerciseNum.value = prevIndex
             _isPreviousButtonEnabled.value = prevIndex>0
-            _currentExercise.value = _exerciseList.value?.get(prevIndex)
+            _currentExercise.value = _exerciseList.value?.getOrNull(prevIndex)
             nextButtonText.value = "Avanti"
             updateExercise()
         }
@@ -159,10 +220,11 @@ class ActiveWorkoutViewModel : ViewModel() {
         _timeLeftSeconds.value = _currentExercise.value?.restTimeSeconds
         _timerText.value = timeLeftSeconds.value?.asTimerText()
         _isTimerRunning.value = false
+        prefs.edit().putBoolean("isTimerRunning", false).apply()
         countDownTimer?.cancel()
     }
 
-    fun Int.asTimerText(): String{
+    fun Long.asTimerText(): String{
         if(this>=60){
             return "${this/60}min ${this%60}s"
         } else if(this<=0){
@@ -182,30 +244,58 @@ class ActiveWorkoutViewModel : ViewModel() {
             _timerText.value = seconds.asTimerText()
         }
         else {
-            startTimer(timeLeftSeconds.value?:0)
+            startTimer(timeLeftSeconds.value?:0L)
         }
     }
     private var countDownTimer: CountDownTimer? = null
-    fun startTimer(seconds: Int){
+    fun startTimer(seconds: Long) {
         countDownTimer?.cancel()
-        _isTimerRunning.value = true
-        _timeLeftSeconds.value = seconds
-        _timerText.value = seconds.asTimerText()
-        if(seconds<=0){
+        if (seconds <= 0L) {
+            _isTimerRunning.value = false
+            prefs.edit().putBoolean("isTimerRunning", false).apply()
+            _timeLeftSeconds.value = 0L
+            _timerEnd.value = 0L
+            _timerText.value = 0L.asTimerText()
             return
         }
-        countDownTimer = object : CountDownTimer((seconds * 1000).toLong(), 1000) {
+        _isTimerRunning.value = true
+        _timeLeftSeconds.value = seconds
+        val newEnd = System.currentTimeMillis() + (seconds * 1000L)
+        _timerEnd.value = newEnd
+        prefs.edit()
+            .putLong("timerEnd", newEnd)
+            .putBoolean("isTimerRunning", true).apply()
+        _timerText.value = seconds.asTimerText()
+        countDownTimer = object : CountDownTimer(seconds * 1000L, 1000L) {
             override fun onTick(millisUntilFinished: Long) {
-                _timeLeftSeconds.value = (millisUntilFinished / 1000).toInt()
-                _timerText.value = timeLeftSeconds.value?.asTimerText()
+                val remainingSeconds = millisUntilFinished / 1000L
+                _timeLeftSeconds.value = remainingSeconds
+                _timerText.value = remainingSeconds.asTimerText()
             }
-            override fun onFinish(){
-                _isTimerRunning.value= false
-                _timeLeftSeconds.value = 0
-                _timerText.value = 0.asTimerText()
+
+            override fun onFinish() {
+                _isTimerRunning.value = false
+                prefs.edit().putBoolean("isTimerRunning", false).apply()
+                _timeLeftSeconds.value = 0L
+                _timerEnd.value = 0L
+                _timerText.value = 0L.asTimerText()
             }
-            }.start()
+        }.start()
+    }
+
+    fun restoreTimerFromSavedEnd(savedTimerEnd: Long) {
+        val currentTime = System.currentTimeMillis()
+        val remainingMillis = savedTimerEnd - currentTime
+
+        if (remainingMillis > 0) {
+            startTimer(remainingMillis / 1000L)
+        } else {
+            _isTimerRunning.value = false
+            prefs.edit().putBoolean("isTimerRunning", true).apply()
+            _timeLeftSeconds.value = 0L
+            _timerText.value = 0L.asTimerText()
         }
+    }
 
         override fun onCleared(){
             countDownTimer?.cancel()

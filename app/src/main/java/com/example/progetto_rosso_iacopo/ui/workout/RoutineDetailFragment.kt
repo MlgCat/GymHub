@@ -52,6 +52,9 @@ class RoutineDetailFragment: Fragment() {
                 is FetchResult.FirebaseError -> {
                     Toast.makeText(context, "Errore DB: ${result.message}", Toast.LENGTH_SHORT).show()
                 }
+                is FetchResult.GenericError -> {
+                    Toast.makeText(context, "Errore: ${result.message}", Toast.LENGTH_SHORT).show()
+                }
             }
         }
         viewModel.fetchRoutine(arguments?.getString("routineId")?:"")

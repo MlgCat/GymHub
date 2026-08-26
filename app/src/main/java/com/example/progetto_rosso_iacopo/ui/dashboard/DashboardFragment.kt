@@ -38,6 +38,8 @@ class DashboardFragment : Fragment() {
             findNavController().navigate(R.id.action_dashboardFragment_to_addWorkoutFragment)
         }
         binding.btnPersonalRoutines.setOnClickListener { findNavController().navigate(R.id.action_dashboardFragment_to_routineListFragment) }
+        binding.btnExploreRoutines.setOnClickListener { findNavController().navigate(R.id.action_dashboardFragment_to_publicRoutineListFragment) }
+        binding.btnResume.setOnClickListener{ findNavController().navigate(R.id.action_dashboardFragment_to_workoutFragment)}
     }
 
     override fun onDestroyView() {
