@@ -44,7 +44,6 @@ class ActiveWorkoutFragment : Fragment(){
         } else{
             viewModel.reloadRoutine()
         }
-        viewModel.exerciseSets.observe(viewLifecycleOwner) {numSets-> Log.d("Setsobserver","exerciseSets = ${viewModel.exerciseSets.value}")}
         binding.btnNext.setOnClickListener { viewModel.nextExercise() }
         binding.btnPrevious.setOnClickListener { viewModel.previousExercise() }
         binding.btnStartTimer.setOnClickListener { viewModel.toggleTimer() }
@@ -73,11 +72,18 @@ class ActiveWorkoutFragment : Fragment(){
                 }
                 is FetchResult.FirebaseError -> {
                     Toast.makeText(context, "Errore DB: ${result.message}", Toast.LENGTH_SHORT).show()
+                    findNavController().navigateUp()
                 }
                 is FetchResult.GenericError -> {
                     Toast.makeText(context, "Errore: ${result.message}", Toast.LENGTH_SHORT).show()
+                    findNavController().navigateUp()
                 }
             }
         }
+    }
+
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 }

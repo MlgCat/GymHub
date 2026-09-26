@@ -59,6 +59,18 @@ inline fun <reified T> MutableLiveData<T>.asBindingProperty(defaultString: Strin
                 defaultString = default
             )
         }
+        Long::class -> {
+            val default = defaultString ?: ""
+            val defaultLong = default.toLongOrNull() ?: 0L
+            UniversalBindingDelegate(
+                liveData = this,
+                typeCheck = { text ->
+                    val parsed = text.toLongOrNull() ?: defaultLong
+                    parsed as T
+                },
+                defaultString = default
+            )
+        }
         else -> throw IllegalArgumentException("Tipo non supportato dal delegato")
     }
 }

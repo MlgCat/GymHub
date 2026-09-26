@@ -28,15 +28,9 @@ class WelcomeActivity : AppCompatActivity() {
         AuthUI.IdpConfig.GoogleBuilder().build(),
     )
 
-    fun signOut(){
-        AuthUI.getInstance()
-            .signOut(this)
-            .addOnCompleteListener {
 
-            }
-    }
 
-    fun signIn(){
+    fun signIn() {
         val signInIntent = AuthUI.getInstance()
             .createSignInIntentBuilder()
             .setAvailableProviders(providers)
@@ -44,9 +38,10 @@ class WelcomeActivity : AppCompatActivity() {
         signInLauncher.launch(signInIntent)
     }
 
-    fun startMainActivity(){
+    fun startMainActivity() {
         val MainActivityIntent = Intent(this, MainActivity::class.java)
         startActivity(MainActivityIntent)
+        finish()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,12 +56,11 @@ class WelcomeActivity : AppCompatActivity() {
         signInButton.setOnClickListener { signIn() }
     }
 
+
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
         val response = result.idpResponse
         if (result.resultCode == RESULT_OK) {
-            val user = FirebaseAuth.getInstance().currentUser
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
+            startMainActivity()
         } else {
             if (response == null) {
                 android.util.Log.d(
@@ -75,7 +69,8 @@ class WelcomeActivity : AppCompatActivity() {
                 )
             } else {
                 val errorCode: Int? = response.error?.errorCode
-                val errorMessage: String = response.error?.localizedMessage ?: "Errore di autenticazione"
+                val errorMessage: String =
+                    response.error?.localizedMessage ?: "Errore di autenticazione"
                 android.util.Log.e(
                     "AUTH_DEBUG",
                     "Errore FirebaseUI. Codice: $errorCode, Messaggio: $errorMessage"

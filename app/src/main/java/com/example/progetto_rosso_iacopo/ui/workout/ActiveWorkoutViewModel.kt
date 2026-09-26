@@ -1,5 +1,4 @@
 package com.example.progetto_rosso_iacopo.ui.workout
-
 import android.app.Application
 import android.content.SharedPreferences
 import android.content.Context
@@ -15,11 +14,15 @@ import com.example.progetto_rosso_iacopo.utils.fetch
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import androidx.lifecycle.AndroidViewModel
+import com.example.progetto_rosso_iacopo.ui.notifications.RestNotificationHandler
+import com.example.progetto_rosso_iacopo.R
 import kotlin.time.Duration.Companion.seconds
 //ho bisogno dell'application context per salvare lo stato attuale dell'allenamento
 
 class ActiveWorkoutViewModel(application: Application) : AndroidViewModel(application) {
     private var routine: WorkoutRoutine? = WorkoutRoutine()
+
+    private val notificationHandler = RestNotificationHandler(getApplication())
 
     private val _title: MutableLiveData<String> = MutableLiveData("")
     val title: LiveData<String> = _title
@@ -68,6 +71,7 @@ class ActiveWorkoutViewModel(application: Application) : AndroidViewModel(applic
     private val _isPreviousButtonEnabled: MutableLiveData<Boolean> = MutableLiveData(false)
     val isPreviousButtonEnabled: LiveData<Boolean> = _isPreviousButtonEnabled
 
+
     //uso lazy per evitare di chiamare getApplication prima che sia pronto
     private val prefs by lazy {
         application.getSharedPreferences(
@@ -81,6 +85,7 @@ class ActiveWorkoutViewModel(application: Application) : AndroidViewModel(applic
             .putInt("exerciseNum", exerciseNum.value?:0)
             .putInt("currentSet", exerciseSets.value?:0)
             .putString("routineId", (routine?.id)?:"")
+            .putString("exerciseName", exerciseName.value?:"")
             .putBoolean("isTimerRunning", (isTimerRunning.value)?:false)
             .putLong("timerEnd", _timerEnd.value?:0).apply()
     }
@@ -102,6 +107,8 @@ class ActiveWorkoutViewModel(application: Application) : AndroidViewModel(applic
                     restoreTimerFromSavedEnd(savedTimerEnd)
                 }
             }
+        } else{
+            _result.value = FetchResult.GenericError("La scheda cercata è nulla")
         }
     }
 
@@ -178,6 +185,7 @@ class ActiveWorkoutViewModel(application: Application) : AndroidViewModel(applic
         _isTimerRunning.value = false
         prefs.edit().putBoolean("isTimerRunning", false).apply()
         countDownTimer?.cancel()
+        notificationHandler.deleteNotification(exerciseName.value)
     }
 
     fun nextExercise(){
@@ -242,6 +250,7 @@ class ActiveWorkoutViewModel(application: Application) : AndroidViewModel(applic
             countDownTimer?.cancel()
             _timeLeftSeconds.value = seconds
             _timerText.value = seconds.asTimerText()
+            notificationHandler.deleteNotification(exerciseName = exerciseName.value)
         }
         else {
             startTimer(timeLeftSeconds.value?:0L)
@@ -262,6 +271,7 @@ class ActiveWorkoutViewModel(application: Application) : AndroidViewModel(applic
         _timeLeftSeconds.value = seconds
         val newEnd = System.currentTimeMillis() + (seconds * 1000L)
         _timerEnd.value = newEnd
+        notificationHandler.scheduleNotification(exerciseName.value, newEnd)
         prefs.edit()
             .putLong("timerEnd", newEnd)
             .putBoolean("isTimerRunning", true).apply()
@@ -279,6 +289,7 @@ class ActiveWorkoutViewModel(application: Application) : AndroidViewModel(applic
                 _timeLeftSeconds.value = 0L
                 _timerEnd.value = 0L
                 _timerText.value = 0L.asTimerText()
+
             }
         }.start()
     }
@@ -291,13 +302,13 @@ class ActiveWorkoutViewModel(application: Application) : AndroidViewModel(applic
             startTimer(remainingMillis / 1000L)
         } else {
             _isTimerRunning.value = false
-            prefs.edit().putBoolean("isTimerRunning", true).apply()
+            prefs.edit().putBoolean("isTimerRunning", false).apply()
             _timeLeftSeconds.value = 0L
             _timerText.value = 0L.asTimerText()
         }
     }
 
-        override fun onCleared(){
-            countDownTimer?.cancel()
-        }
+    override fun onCleared(){
+        countDownTimer?.cancel()
+    }
 }

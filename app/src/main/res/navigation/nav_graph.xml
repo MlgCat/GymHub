@@ -12,7 +12,7 @@
     <fragment
         android:id="@+id/dashboardFragment"
         android:name="com.example.progetto_rosso_iacopo.ui.dashboard.DashboardFragment"
-        android:label="Attività Giornaliera"
+        android:label="DashBoard"
         tools:layout="@layout/fragment_dashboard" >
         <action
             android:id="@+id/action_dashboardFragment_to_addWorkoutFragment"
@@ -31,7 +31,7 @@
     <fragment
         android:id="@+id/routineListFragment"
         android:name="com.example.progetto_rosso_iacopo.ui.workout.RoutineListFragment"
-        android:label="Attività Giornaliera"
+        android:label="Gli allenamenti creati da te"
         tools:layout="@layout/fragment_routine_list" >
         <action
             android:id="@+id/action_routineListFragment_to_routineDetailFragment"
@@ -44,7 +44,7 @@
     <fragment
         android:id="@+id/routineDetailFragment"
         android:name="com.example.progetto_rosso_iacopo.ui.workout.RoutineDetailFragment"
-        android:label="Attività Giornaliera"
+        android:label="Dettagli"
         tools:layout="@layout/fragment_routine_detail" >
         <action
             android:id="@+id/action_routineDetailFragment_to_workoutFragment"
@@ -55,7 +55,7 @@
     <fragment
         android:id="@+id/workoutFragment"
         android:name="com.example.progetto_rosso_iacopo.ui.workout.ActiveWorkoutFragment"
-        android:label="I Miei Allenamenti"
+        android:label="Allenati"
         tools:layout="@layout/fragment_workout"/>
 
     <fragment
@@ -67,7 +67,7 @@
     <fragment
         android:id="@+id/publicRoutineListFragment"
         android:name="com.example.progetto_rosso_iacopo.ui.workout.PublicRoutineListFragment"
-        android:label="Modifica la scheda"
+        android:label="Schede di allenamento pubbliche"
         tools:layout="@layout/fragment_routine_list">
         <action
             android:id="@+id/action_publicRoutineListFragment_to_routineDetailFragment"

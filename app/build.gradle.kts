@@ -60,6 +60,8 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore")
     implementation("androidx.work:work-runtime-ktx:2.10.0")
     implementation("com.firebaseui:firebase-ui-auth:9.1.1")
+    implementation("androidx.activity:activity-ktx:1.9.0")
+    implementation("androidx.fragment:fragment-ktx:1.8.0")
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.androidx.recyclerview)
