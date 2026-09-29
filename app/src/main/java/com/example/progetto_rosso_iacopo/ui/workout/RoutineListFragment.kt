@@ -1,6 +1,7 @@
 package com.example.progetto_rosso_iacopo.ui.workout
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -44,20 +45,29 @@ class RoutineListFragment: Fragment() {
             newList->
             routineAdapter.submitList(newList)
         }
-        viewModel.result.observe(viewLifecycleOwner){ result->
+
+        viewModel.fetchPersonalRoutines()
+        observeResults()
+    }
+
+    fun observeResults() {
+        viewModel.result.observe(viewLifecycleOwner) { result ->
             when (result) {
                 is FetchResult.Success -> {
-                    Toast.makeText(context, "Schede di allenamento trovate!", Toast.LENGTH_LONG).show()
+                    Log.d("Generic", "Scheda di allenamento trovate!")
                 }
+
                 is FetchResult.FirebaseError -> {
-                    Toast.makeText(context, "Errore DB: ${result.message}", Toast.LENGTH_SHORT).show()
+                    Log.e("GenericError", "Errore: ${result.message}")
+                    findNavController().navigateUp()
                 }
+
                 is FetchResult.GenericError -> {
-                    Toast.makeText(context, "Errore: ${result.message}", Toast.LENGTH_SHORT).show()
+                    Log.e("GenericError", "Errore: ${result.message}")
+                    findNavController().navigateUp()
                 }
             }
         }
-        viewModel.fetchPersonalRoutines()
     }
 
     fun onRoutineClicked(routine: WorkoutRoutine):Unit{

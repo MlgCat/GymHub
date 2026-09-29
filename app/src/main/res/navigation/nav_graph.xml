@@ -26,6 +26,9 @@
         <action
             android:id="@+id/action_dashboardFragment_to_workoutFragment"
             app2:destination="@id/workoutFragment" />
+        <action
+            android:id="@+id/action_dashboardFragment_to_generateRoutineFragment"
+            app2:destination="@id/generateRoutineFragment" />
     </fragment>
 
     <fragment
@@ -38,6 +41,16 @@
             app2:destination="@id/routineDetailFragment" />
         <action
             android:id="@+id/action_routineListFragment_to_editWorkoutFragment"
+            app2:destination="@id/editRoutineFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/generateRoutineFragment"
+        android:name="com.example.progetto_rosso_iacopo.ui.generation.GenerateRoutineFragment"
+        android:label="Crea un allenamento con l'AI"
+        tools:layout="@layout/fragment_generate_routine" >
+        <action
+            android:id="@+id/action_generateRoutineFragment_to_editRoutineFragment"
             app2:destination="@id/editRoutineFragment" />
     </fragment>
 

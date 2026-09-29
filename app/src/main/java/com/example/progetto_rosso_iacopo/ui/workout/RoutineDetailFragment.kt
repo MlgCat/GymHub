@@ -44,19 +44,8 @@ class RoutineDetailFragment: Fragment() {
         viewModel.exerciseList.observe(viewLifecycleOwner) { list ->
             exerciseAdapter.submitList(list)
         }
-        viewModel.result.observe(viewLifecycleOwner){ result->
-            when (result) {
-                is FetchResult.Success -> {
-                    Toast.makeText(context, "Scheda di allenamento trovate!", Toast.LENGTH_LONG).show()
-                }
-                is FetchResult.FirebaseError -> {
-                    Toast.makeText(context, "Errore DB: ${result.message}", Toast.LENGTH_SHORT).show()
-                }
-                is FetchResult.GenericError -> {
-                    Toast.makeText(context, "Errore: ${result.message}", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
+        observeResults()
+
         viewModel.fetchRoutine(arguments?.getString("routineId")?:"")
         if(viewModel.creatorId.value != viewModel.userId){
             binding.llButtons.visibility = View.GONE
@@ -84,5 +73,25 @@ class RoutineDetailFragment: Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    fun observeResults() {
+        viewModel.result.observe(viewLifecycleOwner) { result ->
+            when (result) {
+                is FetchResult.Success -> {
+                    Log.d("Generic", "Scheda di allenamento trovate!")
+                }
+
+                is FetchResult.FirebaseError -> {
+                    Log.e("GenericError", "Errore: ${result.message}")
+                    findNavController().navigateUp()
+                }
+
+                is FetchResult.GenericError -> {
+                    Log.e("GenericError", "Errore: ${result.message}")
+                    findNavController().navigateUp()
+                }
+            }
+        }
     }
 }

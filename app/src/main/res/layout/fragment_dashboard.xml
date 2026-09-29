@@ -92,8 +92,15 @@
                     android:layout_marginTop="10dp"
                     android:text="Contunua il tuo ultimo allenamento" />
 
+                <Button
+                    android:id="@+id/btnGenerate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Genera il tuo allenamento con l'AI" />
+
             </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </ScrollView>s
+    </ScrollView>
 </layout>

@@ -182,7 +182,7 @@ class EditRoutineViewModel: ViewModel() {
         if (name.isNullOrBlank()) {
             return
         }
-        val newExercise: Exercise = Exercise(
+        val newExercise = Exercise(
             name = name,
             reps = _currentReps.value,
             description = _currentDescription.value,

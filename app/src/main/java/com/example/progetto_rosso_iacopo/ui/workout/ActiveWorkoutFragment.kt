@@ -68,14 +68,14 @@ class ActiveWorkoutFragment : Fragment(){
         viewModel.result.observe(viewLifecycleOwner){ result->
             when (result) {
                 is FetchResult.Success -> {
-                    Toast.makeText(context, "Scheda di allenamento trovate!", Toast.LENGTH_LONG).show()
+                    Log.d ("Generic","Scheda di allenamento trovate!")
                 }
                 is FetchResult.FirebaseError -> {
-                    Toast.makeText(context, "Errore DB: ${result.message}", Toast.LENGTH_SHORT).show()
+                    Log.e ("GenericError","Errore: ${result.message}")
                     findNavController().navigateUp()
                 }
                 is FetchResult.GenericError -> {
-                    Toast.makeText(context, "Errore: ${result.message}", Toast.LENGTH_SHORT).show()
+                    Log.e ("GenericError","Errore: ${result.message}")
                     findNavController().navigateUp()
                 }
             }

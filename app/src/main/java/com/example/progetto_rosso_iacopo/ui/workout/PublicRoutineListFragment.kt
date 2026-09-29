@@ -1,6 +1,7 @@
 package com.example.progetto_rosso_iacopo.ui.workout
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -40,19 +41,7 @@ class PublicRoutineListFragment: Fragment() {
                 newList->
             routineAdapter.submitList(newList)
         }
-        viewModel.result.observe(viewLifecycleOwner){ result->
-            when (result) {
-                is FetchResult.Success -> {
-                    Toast.makeText(context, "Schede di allenamento trovate!", Toast.LENGTH_LONG).show()
-                }
-                is FetchResult.FirebaseError -> {
-                    Toast.makeText(context, "Errore DB: ${result.message}", Toast.LENGTH_SHORT).show()
-                }
-                is FetchResult.GenericError -> {
-                    Toast.makeText(context, "Errore: ${result.message}", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
+        observeResults()
         viewModel.fetchPublicRoutines()
     }
 
@@ -66,5 +55,23 @@ class PublicRoutineListFragment: Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    fun observeResults(){
+        viewModel.result.observe(viewLifecycleOwner){ result->
+            when (result) {
+                is FetchResult.Success -> {
+                    Log.d ("Generic","Scheda di allenamento trovate!")
+                }
+                is FetchResult.FirebaseError -> {
+                    Log.e ("GenericError","Errore: ${result.message}")
+                    findNavController().navigateUp()
+                }
+                is FetchResult.GenericError -> {
+                    Log.e ("GenericError","Errore: ${result.message}")
+                    findNavController().navigateUp()
+                }
+            }
+        }
     }
 }
