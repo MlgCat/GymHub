@@ -56,6 +56,8 @@ class CreateRoutineViewModel : ViewModel()  {
 
     val editedExerciseNum: MutableLiveData<Int?> = MutableLiveData(null)
 
+    lateinit var routine: WorkoutRoutine
+
     fun addExerciseToList() {
         val name = _currentName.value?.trim()
         if (name.isNullOrBlank()) {
@@ -119,6 +121,7 @@ class CreateRoutineViewModel : ViewModel()  {
         newDocumentRef.set(newRoutine)
             .addOnSuccessListener {
                 android.util.Log.d("FIREBASE_DEBUG", "Salvato su Firebase con l'ID di Firestore: $id")
+                routine = newRoutine
                 _saveStatus.value = SaveResult.Success
             }
             .addOnFailureListener { e ->

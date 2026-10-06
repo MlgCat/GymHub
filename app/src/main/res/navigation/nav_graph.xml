@@ -62,6 +62,9 @@
         <action
             android:id="@+id/action_routineDetailFragment_to_workoutFragment"
             app2:destination="@id/workoutFragment" />
+        <action
+            android:id="@+id/action_routineDetailFragment_to_editRoutineFragment"
+            app2:destination="@id/editRoutineFragment" />
     </fragment>
 
     <!-- Schermata Elenco Allenamenti -->
@@ -75,7 +78,11 @@
         android:id="@+id/editRoutineFragment"
         android:name="com.example.progetto_rosso_iacopo.ui.workout.EditRoutineFragment"
         android:label="Modifica la scheda"
-        tools:layout="@layout/fragment_edit_workout"/>
+        tools:layout="@layout/fragment_edit_workout">
+        <action
+            android:id="@+id/action_editRoutineFragment_to_routineDetailFragment"
+            app2:destination="@id/routineDetailFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/publicRoutineListFragment"

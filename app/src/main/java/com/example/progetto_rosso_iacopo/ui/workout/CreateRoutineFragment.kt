@@ -65,7 +65,8 @@ class CreateRoutineFragment : Fragment() {
             when (result) {
                 is SaveResult.Success -> {
                     Toast.makeText(context, "Scheda salvata con successo!", Toast.LENGTH_LONG).show()
-                    findNavController().navigateUp()
+                    val bundle = Bundle().apply{ putString("routineId",viewModel.routine.id) }
+                    findNavController().navigate(R.id.action_editRoutineFragment_to_routineDetailFragment, bundle)
                 }
                 is SaveResult.ValidationError -> {
                     Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()

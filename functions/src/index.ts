@@ -26,6 +26,7 @@ import { defineSecret } from "firebase-functions/params";
 // functions should each use functions.runWith({ maxInstances: 10 }) instead.
 // In the v1 API, each function can only serve one request per container, so
 // this will be the maximum concurrent request count.
+export{generateWorkout};
 setGlobalOptions({maxInstances: 10});
 
 // export const helloWorld = onRequest((request, response) => {

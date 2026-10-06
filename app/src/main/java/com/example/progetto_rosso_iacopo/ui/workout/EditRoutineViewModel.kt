@@ -62,6 +62,8 @@ class EditRoutineViewModel: ViewModel() {
     val _result: MutableLiveData<FetchResult> = MutableLiveData()
     val result: LiveData<FetchResult> = _result
 
+    lateinit var workout: WorkoutRoutine
+
     fun addExerciseToList() {
         val name = _currentName.value?.trim()
         if (name.isNullOrBlank()) {

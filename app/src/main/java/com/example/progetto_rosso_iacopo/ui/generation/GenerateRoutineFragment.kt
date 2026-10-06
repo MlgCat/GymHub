@@ -7,7 +7,10 @@ import android.view.ViewGroup
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import com.example.progetto_rosso_iacopo.R
 import com.example.progetto_rosso_iacopo.databinding.FragmentGenerateRoutineBinding
+import com.example.progetto_rosso_iacopo.ui.workout.SaveResult
 
 class GenerateRoutineFragment : Fragment() {
     val viewModel: GenerateRoutineViewModel by viewModels()
@@ -107,6 +110,16 @@ class GenerateRoutineFragment : Fragment() {
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             binding.progressBarGenerazione.visibility = if (isLoading) View.VISIBLE else View.GONE
             binding.btnGeneraScheda.isEnabled = !isLoading
+        }
+
+        viewModel.saveStatus.observe(viewLifecycleOwner){ status->
+            if(status is SaveResult.Success){
+                val routine = viewModel.result
+                val bundle = Bundle().apply {
+                    putString("routineId", routine.id)
+                }
+                findNavController().navigate(R.id.action_generateRoutineFragment_to_editRoutineFragment, bundle)
+            }
         }
     }
 

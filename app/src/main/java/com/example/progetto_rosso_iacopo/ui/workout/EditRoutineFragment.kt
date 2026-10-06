@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.example.progetto_rosso_iacopo.R
 import com.example.progetto_rosso_iacopo.databinding.FragmentEditWorkoutBinding
 import kotlin.getValue
 
@@ -62,7 +63,8 @@ class EditRoutineFragment: Fragment() {
             when (result) {
                 is SaveResult.Success -> {
                     Toast.makeText(context, "Scheda salvata con successo!", Toast.LENGTH_LONG).show()
-                    findNavController().navigateUp()
+                    val bundle = Bundle().apply{ putString("routineId",viewModel.workout.id) }
+                    findNavController().navigate(R.id.action_editRoutineFragment_to_routineDetailFragment, bundle)
                 }
                 is SaveResult.ValidationError -> {
                     Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()

@@ -8,10 +8,16 @@ import androidx.lifecycle.ViewModel
 import com.example.progetto_rosso_iacopo.data.model.Exercise
 import com.example.progetto_rosso_iacopo.data.model.Exercise.Companion.invoke
 import com.example.progetto_rosso_iacopo.data.model.WorkoutRoutine
+import com.example.progetto_rosso_iacopo.ui.workout.SaveResult
 import com.google.firebase.Firebase
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.functions.FirebaseFunctionsException
 import com.google.firebase.functions.functions
 
 class GenerateRoutineViewModel: ViewModel() {
+
+    private val _saveStatus = MutableLiveData<SaveResult>()
+    val saveStatus: LiveData<SaveResult> = _saveStatus
     private val _isLoading: MutableLiveData<Boolean> = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading
     private val goal: MutableLiveData<String> = MutableLiveData()
@@ -22,32 +28,37 @@ class GenerateRoutineViewModel: ViewModel() {
     private val additionalRequests: MutableLiveData<String> = MutableLiveData()
     private val user = FirebaseAuth.getInstance().currentUser
 
-    fun updateGoal(inGoal: String){
+    private val _result: WorkoutRoutine? = null
+    lateinit var result: WorkoutRoutine
+
+
+    fun updateGoal(inGoal: String) {
         goal.value = inGoal
     }
-    fun updateExperienceLevel(inExperienceLevel: String){
+
+    fun updateExperienceLevel(inExperienceLevel: String) {
         experienceLevel.value = inExperienceLevel
     }
 
-    fun updateLimitations(inLimitations: MutableList<String>){
+    fun updateLimitations(inLimitations: MutableList<String>) {
         limitations.value = inLimitations
     }
 
-    fun updateEquipment(inEquipment: MutableList<String>){
+    fun updateEquipment(inEquipment: MutableList<String>) {
         equipment.value = inEquipment
     }
 
-    fun updateAdditionalRequests(inAdditionalRequests: String){
+    fun updateAdditionalRequests(inAdditionalRequests: String) {
         additionalRequests.value = inAdditionalRequests
     }
 
-    fun buildRequestOrNull(): WorkoutGenerationRequest?{
+    fun buildRequestOrNull(): WorkoutGenerationRequest? {
         return WorkoutGenerationRequest(
-            goal.value?:return null,
-            experienceLevel.value?:return null,
-            equipment.value?:return null,
-            limitations.value?:return null,
-            additionalRequests.value?:return null,
+            goal.value ?: return null,
+            experienceLevel.value ?: return null,
+            equipment.value ?: mutableListOf(),
+            limitations.value ?: mutableListOf(),
+            additionalRequests.value ?: "",
         )
     }
 
@@ -59,58 +70,103 @@ class GenerateRoutineViewModel: ViewModel() {
         "additionalRequests" to additionalRequests
     )
 
-    fun onGenerate(){
+    fun onGenerate() {
         val workoutRequest: WorkoutGenerationRequest? = buildRequestOrNull()
-        if((workoutRequest == null) ){
+        if ((workoutRequest == null)) {
             Log.e("RequestError", "richiesta scheda non valida")
             return
         }
-        if(user == null){
+        if (user == null) {
             Log.e("AuthenticationError", "richiesta scheda da utente non autenticato")
             return
         }
-        val functions = Firebase.functions
+        val functions = Firebase.functions("europe-west1")
+        if (true) {
+            functions.useEmulator("10.0.2.2", 5001)
+        }
         functions.getHttpsCallable("generateWorkout")
             .call(workoutRequest.toFunctionData())
-            .addOnSuccessListener {
-                result->parseWorkout(result.data)
+            .addOnSuccessListener { result ->
+                parseWorkout(result.data)
                 _isLoading.value = false
             }
-            .addOnFailureListener { e->
-                Log.d("FunctionsError", e.message?:"errore non gestito")
+            .addOnFailureListener { e ->
+                if (e is FirebaseFunctionsException) {
+                    Log.e(
+                        "GenWorkout",
+                        "code=${e.code} message=${e.message} details=${e.details}",
+                        e
+                    )
+                } else {
+                    Log.e("GenWorkout", "errore generico", e)
+                }
                 _isLoading.value = false
             }
         _isLoading.value = true
     }
 
-    fun parseWorkout(data:Any?): WorkoutRoutine?{
-        Log.d("Parsing", "started parsing")
+    fun parseWorkout(data: Any?): WorkoutRoutine? {
         val isPublic = false
         val currentUser = FirebaseAuth.getInstance().currentUser
         val uid = currentUser?.uid ?: "unknown_user"
         val userName = currentUser?.displayName ?: "Allenatore Anonimo"
+
         val map = data as? Map<String, Any?> ?: return null
-        val title: String = map["title"]as? String ?: return null
-        Log.d("Parsing", title)
-        val rawExercises = map["exerciseList"]as? List<Map<String, Any?>> ?: return null
-        val exerciseList: MutableList<Exercise> = mutableListOf<Exercise>()
-        for(rawExercise in rawExercises){
-            val exercise: Map<String,Any?> = rawExercise as? Map<String, Any?> ?: return null
-            val exerciseName: String = exercise["name"] as? String ?: return null
-            val reps: Int = exercise["reps"] as? Int?: return null
-            val sets: Int = exercise["sets"] as? Int?: return null
-            val restTime: Long = exercise["restTime"] as? Long ?: return null
-            val description: String = exercise["description"] as? String ?: return null
-            val newExercise = Exercise(
-                name = exerciseName,
-                reps = reps,
-                description = description,
-                sets = sets,
-                restTimeSeconds = restTime,
+        val title = map["name"] as? String ?: return null
+        val rawExercises = map["exercises"] as? List<Map<String, Any?>> ?: return null
+
+        val exerciseList = mutableListOf<Exercise>()
+        for (rawExercise in rawExercises) {
+            val exercise = rawExercise as? Map<String, Any?> ?: return null
+            val exerciseName = exercise["name"] as? String ?: return null
+            val reps = (exercise["reps"] as? Number)?.toInt() ?: return null
+            val sets = (exercise["sets"] as? Number)?.toInt() ?: return null
+            val restTime = (exercise["restTime"] as? Number)?.toLong() ?: return null
+            val description = exercise["description"] as? String ?: return null
+
+            exerciseList.add(
+                Exercise(
+                    name = exerciseName,
+                    reps = reps,
+                    description = description,
+                    sets = sets,
+                    restTimeSeconds = restTime,
+                )
             )
-            exerciseList.add(newExercise)
         }
-        return null
+        val db = FirebaseFirestore.getInstance()
+        val newDocumentRef = db.collection("workoutroutines").document()
+        val id = newDocumentRef.id
+        val newRoutine = WorkoutRoutine(
+            id = id,
+            creatorId = uid,
+            creatorName = userName,
+            title = title,
+            isPublic = false,
+            exerciseList = exerciseList
+        )
+        newDocumentRef.set(newRoutine)
+            .addOnSuccessListener {
+                android.util.Log.d(
+                    "FIREBASE_DEBUG",
+                    "Salvato su Firebase con l'ID di Firestore: $id"
+                )
+                result = newRoutine
+                _saveStatus.value = SaveResult.Success
+            }
+            .addOnFailureListener { e ->
+                android.util.Log.e("FIREBASE_DEBUG", "Errore di salvataggio", e)
+                _saveStatus.value = SaveResult.FirebaseError(e.localizedMessage ?: "Errore di salvataggio")
+                _isLoading.value = false
+            }
+
+        return WorkoutRoutine(
+            title = title,
+            exerciseList = exerciseList,
+            isPublic = isPublic,
+            creatorId = uid,
+            creatorName = userName
+        )
     }
 }
 
