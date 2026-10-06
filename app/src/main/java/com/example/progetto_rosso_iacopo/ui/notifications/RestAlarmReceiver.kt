@@ -12,7 +12,9 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.example.progetto_rosso_iacopo.R
 import android.Manifest
+import android.app.PendingIntent
 import android.util.Log
+import com.example.progetto_rosso_iacopo.MainActivity
 import com.example.progetto_rosso_iacopo.ui.notifications.RestNotificationHandler
 import kotlin.jvm.java
 
@@ -27,11 +29,24 @@ class RestAlarmReceiver : BroadcastReceiver() {
         // Assicurati che il Notification Channel sia stato creato nel sistema
         NotificationHelper.createNotificationChannel(context)
 
+        val openAppIntent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            openAppIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+
         // Costruzione della notifica (richiede il CHANNEL_ID nel costruttore per API 26+)
         val builder = NotificationCompat.Builder(context, NotificationHelper.CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_timer)
             .setContentTitle("Tempo di recupero terminato!")
             .setContentText("Pronto per: $exerciseName")
+            .setContentIntent(pendingIntent)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setDefaults(NotificationCompat.DEFAULT_ALL) // Attiva vibrazione e suono predefiniti
             .setAutoCancel(true)

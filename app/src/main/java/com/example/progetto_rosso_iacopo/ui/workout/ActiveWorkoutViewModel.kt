@@ -87,28 +87,32 @@ class ActiveWorkoutViewModel(application: Application) : AndroidViewModel(applic
             .putString("routineId", (routine?.id)?:"")
             .putString("exerciseName", exerciseName.value?:"")
             .putBoolean("isTimerRunning", (isTimerRunning.value)?:false)
-            .putLong("timerEnd", _timerEnd.value?:0).apply()
+            .putLong("timerEnd", _timerEnd.value?:0)
+            .putLong("timeLeftSeconds", timeLeftSeconds.value?:_timeLeftSeconds.value?:0).apply()
     }
 
     fun reloadRoutine(){
         val id = prefs.getString("routineId", "")
         Log.d("Info", "reloading $id")
-        if(!id.isNullOrEmpty()) {
-            _exerciseNum.value = prefs.getInt("exerciseNum", 0)
-            _isPreviousButtonEnabled.value = (exerciseNum.value?:-1) > 0
-            val isRunning = prefs.getBoolean("isTimerRunning", false)
-            val savedTimerEnd = prefs.getLong("timerEnd", -1)
-            //quando ho aggiornato l'esercizio sovrascrivo exerciseSets e timerEnd
-            fetchRoutine(id, exerciseNum.value?:0) {
-                _exerciseSets.value = prefs.getInt("currentSet", 0)
-                _timerEnd.value = savedTimerEnd
-                _isTimerRunning.value = isRunning
-                if(isRunning){
-                    restoreTimerFromSavedEnd(savedTimerEnd)
-                }
-            }
-        } else{
+        if(id.isNullOrEmpty()) {
             _result.value = FetchResult.GenericError("La scheda cercata è nulla")
+            return
+        }
+        _exerciseNum.value = prefs.getInt("exerciseNum", 0)
+        _isPreviousButtonEnabled.value = (exerciseNum.value?:-1) > 0
+        val isRunning = prefs.getBoolean("isTimerRunning", false)
+        val savedTimerEnd = prefs.getLong("timerEnd", -1)
+        //quando ho aggiornato l'esercizio sovrascrivo exerciseSets e timerEnd
+        fetchRoutine(id, exerciseNum.value?:0) {
+            _exerciseSets.value = prefs.getInt("currentSet", 0)
+            _timerEnd.value = savedTimerEnd
+            _isTimerRunning.value = isRunning
+            if(isRunning){
+                restoreTimerFromSavedEnd(savedTimerEnd)
+            } else{
+                _timeLeftSeconds.value = prefs.getLong("timeLeftSeconds", currentExercise.value?.restTimeSeconds?:0L)
+                _timerText.value =_timeLeftSeconds.value?.asTimerText()
+            }
         }
     }
 
@@ -119,6 +123,7 @@ class ActiveWorkoutViewModel(application: Application) : AndroidViewModel(applic
             .putString("routineId", "")
             .putLong("timerEnd", 0L)
             .putBoolean("isTimerRunning", false)
+            .putLong("timeLeftSeconds", 0L)
             .apply()
     }
 
@@ -186,6 +191,7 @@ class ActiveWorkoutViewModel(application: Application) : AndroidViewModel(applic
         prefs.edit().putBoolean("isTimerRunning", false).apply()
         countDownTimer?.cancel()
         notificationHandler.deleteNotification(exerciseName.value)
+        saveWorkoutState()
     }
 
     fun nextExercise(){
@@ -217,6 +223,7 @@ class ActiveWorkoutViewModel(application: Application) : AndroidViewModel(applic
             _currentExercise.value = _exerciseList.value?.getOrNull(prevIndex)
             nextButtonText.value = "Avanti"
             updateExercise()
+            saveWorkoutState()
         }
     }
 
@@ -243,25 +250,29 @@ class ActiveWorkoutViewModel(application: Application) : AndroidViewModel(applic
         }
     }
 
+
     fun toggleTimer(){
         if(isTimerRunning.value?: false){
             val seconds = _timeLeftSeconds.value ?: 0
             countDownTimer?.onFinish()
             countDownTimer?.cancel()
             _timeLeftSeconds.value = seconds
+            //prefs.edit().putLong("timeLeftSeconds", seconds).apply()
             _timerText.value = seconds.asTimerText()
             notificationHandler.deleteNotification(exerciseName = exerciseName.value)
         }
         else {
-            startTimer(timeLeftSeconds.value?:0L)
+            startTimer( timeLeftSeconds.value?:0L)
         }
     }
     private var countDownTimer: CountDownTimer? = null
     fun startTimer(seconds: Long) {
         countDownTimer?.cancel()
         if (seconds <= 0L) {
+            prefs.edit().putBoolean("isTimerRunning", false)
+            .putLong("timeLeftSeconds", 0L)
+            .apply()
             _isTimerRunning.value = false
-            prefs.edit().putBoolean("isTimerRunning", false).apply()
             _timeLeftSeconds.value = 0L
             _timerEnd.value = 0L
             _timerText.value = 0L.asTimerText()
@@ -285,11 +296,12 @@ class ActiveWorkoutViewModel(application: Application) : AndroidViewModel(applic
 
             override fun onFinish() {
                 _isTimerRunning.value = false
-                prefs.edit().putBoolean("isTimerRunning", false).apply()
+                prefs.edit().putBoolean("isTimerRunning", false)
+                    .putLong("timeLeftSeconds", _timeLeftSeconds.value?:0L)
+                    .apply()
                 _timeLeftSeconds.value = 0L
                 _timerEnd.value = 0L
                 _timerText.value = 0L.asTimerText()
-
             }
         }.start()
     }

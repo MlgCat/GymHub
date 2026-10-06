@@ -225,7 +225,7 @@ async function generateWorkoutJson(
   timeoutMs: number = PER_CALL_TIMEOUT_MS
 ): Promise<WorkoutResponse> {
   let res: Response;
-  
+  apiKey = "AQ.Ab8RN6IYpvqK926eRGuxxzsFwUWbgFNLdcv5GjXDzY-9K6kPeA"
   try {
     res = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,

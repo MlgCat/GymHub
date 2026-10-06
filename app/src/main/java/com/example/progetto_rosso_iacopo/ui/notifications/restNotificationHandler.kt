@@ -10,6 +10,7 @@ import android.provider.Settings
 import android.util.Log
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.ContextCompat.startActivity
+import com.example.progetto_rosso_iacopo.MainActivity
 import kotlin.jvm.java
 
 class RestNotificationHandler (private val context: Context) {
@@ -19,6 +20,7 @@ class RestNotificationHandler (private val context: Context) {
         val intent = Intent(context, RestAlarmReceiver::class.java).apply {
             putExtra("exercise_name", exerciseName)
         }
+
         return PendingIntent.getBroadcast(
             context, exerciseName.hashCode(), intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE

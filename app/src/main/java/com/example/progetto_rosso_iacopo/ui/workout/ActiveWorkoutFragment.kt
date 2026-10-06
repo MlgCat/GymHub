@@ -38,7 +38,7 @@ class ActiveWorkoutFragment : Fragment(){
         super.onViewCreated(view, savedInstanceState)
         observeResults()
         val args = arguments?.getString("routineId")
-        if(args != null){
+        if(args != null && savedInstanceState == null){
             viewModel.fetchRoutine(args)
             {viewModel.saveWorkoutState()}
         } else{

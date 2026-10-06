@@ -1,4 +1,6 @@
 package com.example.progetto_rosso_iacopo.ui.dashboard
+import android.app.Application
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -39,8 +41,14 @@ class DashboardFragment : Fragment() {
         }
         binding.btnPersonalRoutines.setOnClickListener { findNavController().navigate(R.id.action_dashboardFragment_to_routineListFragment) }
         binding.btnExploreRoutines.setOnClickListener { findNavController().navigate(R.id.action_dashboardFragment_to_publicRoutineListFragment) }
-        binding.btnResume.setOnClickListener{ findNavController().navigate(R.id.action_dashboardFragment_to_workoutFragment)}
         binding.btnGenerate.setOnClickListener { findNavController().navigate(R.id.action_dashboardFragment_to_generateRoutineFragment) }
+        val prefs = requireContext().getSharedPreferences(
+                "active-workout-state",
+                Context.MODE_PRIVATE
+            )
+        val hasSaved = !prefs.getString("routineId", "").isNullOrEmpty()
+        binding.btnResume.visibility = if (hasSaved) View.VISIBLE else View.GONE
+        binding.btnResume.setOnClickListener{ findNavController().navigate(R.id.action_dashboardFragment_to_workoutFragment)}
     }
 
     override fun onDestroyView() {

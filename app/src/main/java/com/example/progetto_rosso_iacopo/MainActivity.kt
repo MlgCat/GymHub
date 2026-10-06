@@ -35,6 +35,7 @@ import androidx.navigation.fragment.NavHostFragment
 import com.google.android.material.appbar.MaterialToolbar
 import androidx.navigation.ui.setupWithNavController
 import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.navigateUp
 import com.example.progetto_rosso_iacopo.ui.auth.WelcomeActivity
 import com.firebase.ui.auth.AuthUI
 import java.util.jar.Manifest
@@ -53,6 +54,22 @@ class MainActivity : AppCompatActivity() {
             setOf(R.id.dashboardFragment) // Schermate principali (senza freccia indietro)
         )
         toolbar.setupWithNavController(navController, appBarConfiguration)
+        toolbar.setNavigationOnClickListener {
+            when (navController.currentDestination?.id) {
+                R.id.routineDetailFragment -> {
+                    navController.popBackStack(R.id.dashboardFragment, false)
+                }
+                R.id.addWorkoutFragment-> {
+                    navController.popBackStack(R.id.dashboardFragment, false)
+                }
+                else -> {
+                    // comportamento standard per tutti gli altri
+                    if (!navController.navigateUp(appBarConfiguration)) {
+                        finish()
+                    }
+                }
+            }
+        }
         toolbar.inflateMenu(R.menu.main_menu)
         toolbar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
