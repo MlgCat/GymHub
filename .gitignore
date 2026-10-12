@@ -1,20 +1,33 @@
-*.iml
-*.env
-.env
-.env*
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
+# Dipendenze Node
 node_modules/
+
+# Segreti e variabili d'ambiente
+.env*
+*.env
+!.env.example
 /key
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+functions/.secret.local
+
+# Gradle / Android
+.gradle/
+build/
 local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+*.iml
+*.jks
+*.keystore
+
+# Android Studio
+.idea/
+
+# Firebase
+functions/lib/
+.firebase/
+firebase-debug.log*
+*-debug.log
+
+# Sistema
+.DS_Store
+Thumbs.db
