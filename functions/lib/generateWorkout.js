@@ -1,11 +1,13 @@
 "use strict";
 //const geminiApiKey = defineSecret("GEMINI_API_KEY");
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateWorkout = void 0;
 const https_1 = require("firebase-functions/v2/https");
-const params_1 = require("firebase-functions/params");
 const zod_1 = require("zod");
-const geminiApiKey = (0, params_1.defineSecret)("GEMINI_API_KEY");
+require("dotenv/config");
+//const geminiApiKey = defineSecret("GEMINI_API_KEY");
+const geminiApiKey = (_a = process.env.API_KEY) !== null && _a !== void 0 ? _a : "";
 const GEMINI_MODEL = "gemini-3.8-flash";
 const GEMINI_FALLBACK1 = "gemini-3.5-flash-lite";
 const GEMINI_FALLBACK2 = "gemini-3.1-flash-lite";
@@ -70,7 +72,7 @@ exports.generateWorkout = (0, https_1.onCall)({
     }
     const prompt = buildPrompt(input.data);
     try {
-        return await callLLM(prompt, geminiApiKey.value());
+        return await callLLM(prompt, geminiApiKey /*.value()*/);
     }
     catch (e) {
         errorHandler(e);
@@ -143,7 +145,7 @@ function extractText(candidate) {
 async function generateWorkoutJson(apiKey, system, user, model = GEMINI_MODEL, timeoutMs = PER_CALL_TIMEOUT_MS) {
     var _a, _b;
     let res;
-    apiKey = "AQ.Ab8RN6IYpvqK926eRGuxxzsFwUWbgFNLdcv5GjXDzY-9K6kPeA";
+    apiKey = geminiApiKey;
     try {
         res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
             method: "POST",

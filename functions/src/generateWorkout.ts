@@ -4,9 +4,12 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { defineSecret } from "firebase-functions/params";
 import { z } from "zod";
+import "dotenv/config";
 
 
-const geminiApiKey = defineSecret("GEMINI_API_KEY");
+
+//const geminiApiKey = defineSecret("GEMINI_API_KEY");
+const geminiApiKey : string = process.env.API_KEY ?? "";
 
 const GEMINI_MODEL = "gemini-3.8-flash";
 const GEMINI_FALLBACK1 = "gemini-3.5-flash-lite";
@@ -114,7 +117,7 @@ export const generateWorkout = onCall(
 
     const prompt = buildPrompt(input.data);
     try {
-      return await callLLM(prompt, geminiApiKey.value());
+      return await callLLM(prompt, geminiApiKey/*.value()*/);
     } catch (e) {
       errorHandler(e);
     }
@@ -225,7 +228,7 @@ async function generateWorkoutJson(
   timeoutMs: number = PER_CALL_TIMEOUT_MS
 ): Promise<WorkoutResponse> {
   let res: Response;
-  apiKey = "AQ.Ab8RN6IYpvqK926eRGuxxzsFwUWbgFNLdcv5GjXDzY-9K6kPeA"
+  apiKey = geminiApiKey
   try {
     res = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
