@@ -10,7 +10,7 @@
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
-/functions/node_modules
+node_modules/
 /key
 .DS_Store
 /build
